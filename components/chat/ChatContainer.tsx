@@ -1,17 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { useChat } from "@/hooks/useChat";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function ChatContainer() {
   const { messages, sendMessage, isLoading, error, clearError, resetConversation } =
@@ -55,30 +49,21 @@ export default function ChatContainer() {
               Discover products, compare specs, and build carts with a single prompt.
             </p>
           </div>
-          <Button variant="outline" colorScheme="purple" onClick={resetConversation}>
+          <Button variant="outline" size="sm" onClick={resetConversation}>
             Reset chat
           </Button>
         </header>
 
         {error && (
-          <div className="mb-4">
-            <Alert status="error" borderRadius="xl">
-              <AlertIcon />
-              <AlertDescription w="100%">
-                <Stack
-                  direction={{ base: "column", sm: "row" }}
-                  align={{ base: "flex-start", sm: "center" }}
-                  justify="space-between"
-                  spacing={3}
-                >
-                  <Text>{error}</Text>
-                  <Button variant="ghost" size="sm" colorScheme="red" onClick={clearError}>
-                    Dismiss
-                  </Button>
-                </Stack>
-              </AlertDescription>
-            </Alert>
-          </div>
+          <Alert variant="destructive" className="mb-4 border border-red-500/40">
+            <AlertTitle>Something went wrong</AlertTitle>
+            <AlertDescription className="flex flex-col gap-3 text-red-100 sm:flex-row sm:items-center sm:justify-between">
+              <span>{error}</span>
+              <Button variant="ghost" size="sm" onClick={clearError}>
+                Dismiss
+              </Button>
+            </AlertDescription>
+          </Alert>
         )}
 
         <div
@@ -96,11 +81,11 @@ export default function ChatContainer() {
               </p>
             </div>
           ) : (
-            <Stack spacing={4}>
+            <div className="flex flex-col gap-4">
               {messages.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
-            </Stack>
+            </div>
           )}
         </div>
 

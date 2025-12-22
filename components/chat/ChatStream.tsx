@@ -1,55 +1,52 @@
 "use client";
 
-import { Spinner, Text, VStack, Skeleton } from "@chakra-ui/react";
+import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ChatStreamProps {
   content: string;
   isStreaming?: boolean;
-  color?: string;
-  secondaryColor?: string;
-  accentColor?: string;
+  colorClass?: string;
+  secondaryClass?: string;
 }
 
 export default function ChatStream({
   content,
   isStreaming,
-  color = "gray.800",
-  secondaryColor = "gray.500",
-  accentColor = "purple.500",
+  colorClass = "text-gray-800",
+  secondaryClass = "text-gray-500",
 }: ChatStreamProps) {
   if (!content.trim() && isStreaming) {
     return (
-      <VStack align="stretch" spacing={2}>
-        <Skeleton height="16px" />
-        <Skeleton height="16px" width="80%" />
-        <Skeleton height="16px" width="60%" />
-      </VStack>
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+        <Skeleton className="h-4 w-3/5" />
+      </div>
     );
   }
 
   return (
-    <VStack align="stretch" spacing={3}>
+    <div className="space-y-3">
       {content
         .split("\n")
         .filter((segment) => segment.trim().length > 0)
         .map((segment, index) => (
-          <Text
+          <p
             key={`${segment}-${index}`}
-            fontSize="sm"
-            lineHeight="tall"
-            color={color}
+            className={`text-sm leading-relaxed ${colorClass}`}
           >
             {segment.trim()}
-          </Text>
+          </p>
         ))}
       {isStreaming && (
-        <VStack align="start" spacing={1}>
-          <Spinner size="xs" color={accentColor} />
-          <Text fontSize="xs" color={secondaryColor}>
+        <div className="flex items-center gap-2 text-xs">
+          <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
+          <p className={`tracking-wide ${secondaryClass}`}>
             Thinking about more details...
-          </Text>
-        </VStack>
+          </p>
+        </div>
       )}
-    </VStack>
+    </div>
   );
 }

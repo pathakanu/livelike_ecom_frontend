@@ -1,13 +1,7 @@
-import {
-  Badge,
-  Card,
-  CardBody,
-  Heading,
-  Stack,
-  Text,
-  Divider,
-} from "@chakra-ui/react";
 import { ProductComparisonPayload } from "@/lib/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface ProductComparisonProps {
   payload: ProductComparisonPayload;
@@ -17,46 +11,42 @@ export default function ProductComparison({
   payload,
 }: ProductComparisonProps) {
   return (
-    <Card variant="outline" borderRadius="xl">
-      <CardBody>
-        <Stack spacing={5}>
-          <Heading size="sm">{payload.title}</Heading>
-          {payload.entries.map((entry, index) => (
-            <Stack key={entry.id} spacing={3}>
-              <Stack direction="row" spacing={2} align="center">
-                <Text fontWeight="semibold">{entry.headline}</Text>
-                {entry.badge && (
-                  <Badge colorScheme="pink" fontSize="0.65rem">
-                    {entry.badge}
-                  </Badge>
-                )}
-                {typeof entry.price === "number" && (
-                  <Badge variant="subtle" colorScheme="purple">
-                    ${entry.price.toFixed(2)}
-                  </Badge>
-                )}
-              </Stack>
-              <Stack spacing={1}>
-                {entry.highlights.map((highlight) => (
-                  <Text key={highlight} fontSize="sm" color="gray.600">
-                    • {highlight}
-                  </Text>
-                ))}
-              </Stack>
-              <Stack spacing={1}>
-                {entry.specs.map((spec) => (
-                  <Text key={spec} fontSize="xs" color="gray.500">
-                    {spec}
-                  </Text>
-                ))}
-              </Stack>
-              {index < payload.entries.length - 1 && (
-                <Divider borderColor="gray.100" />
+    <Card className="bg-white">
+      <CardContent className="space-y-5 p-6">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          {payload.title}
+        </h3>
+        {payload.entries.map((entry, index) => (
+          <div key={entry.id} className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-base font-semibold text-slate-900">
+                {entry.headline}
+              </p>
+              {entry.badge && (
+                <Badge className="bg-pink-100 text-pink-600">{entry.badge}</Badge>
               )}
-            </Stack>
-          ))}
-        </Stack>
-      </CardBody>
+              {typeof entry.price === "number" && (
+                <Badge className="bg-purple-50 text-purple-600">
+                  ${entry.price.toFixed(2)}
+                </Badge>
+              )}
+            </div>
+            <div className="space-y-1 text-sm text-slate-600">
+              {entry.highlights.map((highlight) => (
+                <p key={highlight}>• {highlight}</p>
+              ))}
+            </div>
+            <div className="space-y-1 text-xs text-slate-500">
+              {entry.specs.map((spec) => (
+                <p key={spec}>{spec}</p>
+              ))}
+            </div>
+            {index < payload.entries.length - 1 && (
+              <Separator className="border-dashed border-slate-200" />
+            )}
+          </div>
+        ))}
+      </CardContent>
     </Card>
   );
 }

@@ -9,6 +9,7 @@ import {
 } from "@/lib/types";
 
 const STORAGE_KEY = "shopping-assistant-history";
+const STORAGE_VERSION_KEY = "shopping-assistant-build";
 
 const createId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -26,6 +27,19 @@ export function useChat() {
   useEffect(() => {
     if (typeof window === "undefined" || initializedRef.current) {
       return;
+    }
+
+    try {
+      const buildId =
+        (window as typeof window & { __NEXT_DATA__?: { buildId?: string } })
+          .__NEXT_DATA__?.buildId || "dev";
+      const storedBuildId = window.localStorage.getItem(STORAGE_VERSION_KEY);
+      if (storedBuildId !== buildId) {
+        window.localStorage.removeItem(STORAGE_KEY);
+        window.localStorage.setItem(STORAGE_VERSION_KEY, buildId);
+      }
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY);
     }
 
     try {

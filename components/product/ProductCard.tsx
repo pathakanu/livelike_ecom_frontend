@@ -1,15 +1,7 @@
-import {
-  Badge,
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  Heading,
-  Image,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
 import { ProductItem } from "@/lib/types";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface ProductCardProps {
   product: ProductItem;
@@ -26,40 +18,33 @@ export default function ProductCard({
   ctaLabel = "View details",
 }: ProductCardProps) {
   return (
-    <Card variant="outline" borderRadius="xl" overflow="hidden">
-      <Image
+    <Card className="flex h-full flex-col overflow-hidden border-slate-100 bg-white shadow-lg">
+      <img
         src={product.image}
         alt={product.name}
-        height="180px"
-        width="100%"
-        objectFit="cover"
+        className="h-48 w-full object-cover"
+        loading="lazy"
       />
-      <CardBody>
-        <Stack spacing={3}>
-          <Stack direction="row" spacing={2} align="center">
-            <Heading size="sm">{product.name}</Heading>
-            {product.badge && (
-              <Badge colorScheme="purple" fontSize="0.65rem">
-                {product.badge}
-              </Badge>
-            )}
-          </Stack>
-          <Text fontSize="sm" color="gray.600">
-            {product.description}
-          </Text>
-          <Text fontWeight="semibold" fontSize="lg">
-            {currency.format(product.price)}
-          </Text>
-          {typeof product.rating === "number" && (
-            <Text fontSize="sm" color="gray.500">
-              ⭐ {product.rating.toFixed(1)} customer rating
-            </Text>
+      <CardContent className="flex flex-1 flex-col gap-3 p-5 text-slate-400">
+        <div className="flex items-center gap-2">
+          <h3 className="text-base font-semibold">{product.name}</h3>
+          {product.badge && (
+            <Badge className="bg-purple-100 text-purple-600">
+              {product.badge}
+            </Badge>
           )}
-        </Stack>
-      </CardBody>
-      <CardFooter>
-        <Button colorScheme="purple" width="100%">
-          {ctaLabel}
+        </div>
+        <p className="text-sm text-slate-500">{product.description}</p>
+        <p className="text-lg font-semibold">{currency.format(product.price)}</p>
+        {typeof product.rating === "number" && (
+          <p className="text-sm text-slate-500">
+            ⭐ {product.rating.toFixed(1)} customer rating
+          </p>
+        )}
+      </CardContent>
+      <CardFooter className="px-5 pb-5">
+        <Button className="w-full rounded-xl py-3 text-sm font-semibold">
+          Add to Cart
         </Button>
       </CardFooter>
     </Card>

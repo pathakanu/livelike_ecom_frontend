@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  Button,
-  FormControl,
-  Input,
-  InputGroup,
-  InputRightElement,
-} from "@chakra-ui/react";
 import { FormEvent } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface ChatInputProps {
   value: string;
@@ -30,39 +25,29 @@ export default function ChatInput({
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit}>
-        <FormControl>
-          <InputGroup size="lg">
-            <Input
-              value={value}
-              onChange={(event) => onChange(event.target.value)}
-              placeholder="Ask for deals, compare products, or build a cart..."
-              pr="6.5rem"
-              bg="white"
-              color="gray.900"
-              borderColor="gray.200"
-              _placeholder={{ color: "gray.500" }}
-              _focusVisible={{ borderColor: "purple.500", boxShadow: "none" }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  onSubmit();
-                }
-              }}
-            />
-            <InputRightElement width="6.5rem">
-              <Button
-                type="submit"
-                colorScheme="purple"
-                width="100%"
-                isLoading={isLoading}
-                loadingText="Sending"
-                isDisabled={!value.trim()}
-              >
-                Send
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-        </FormControl>
+        <div className="relative">
+          <Input
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder="Ask for deals, compare products, or build a cart..."
+            className="h-14 pr-28 text-base"
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                onSubmit();
+              }
+            }}
+          />
+          <Button
+            type="submit"
+            size="sm"
+            className="absolute right-2 top-2 h-10 rounded-xl px-6 text-xs uppercase tracking-wide"
+            disabled={!value.trim()}
+            isLoading={isLoading}
+          >
+            Send
+          </Button>
+        </div>
       </form>
     </div>
   );

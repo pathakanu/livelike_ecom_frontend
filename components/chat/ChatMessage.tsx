@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardBody, Stack, Text, SimpleGrid } from "@chakra-ui/react";
 import { useMemo } from "react";
 import {
   CartSummaryPayload,
@@ -12,6 +11,8 @@ import ProductCard from "@/components/product/ProductCard";
 import ProductComparison from "@/components/product/ProductComparison";
 import CartSummary from "@/components/product/CartSummary";
 import ChatStream from "./ChatStream";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -21,9 +22,9 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
   const alignmentClass = isUser ? "justify-end" : "justify-start";
   const streamColors = {
-    color: isUser ? "whiteAlpha.900" : "gray.800",
-    secondary: isUser ? "whiteAlpha.700" : "gray.500",
-    accent: isUser ? "whiteAlpha.900" : "purple.500",
+    colorClass: isUser ? "text-white" : "text-slate-800",
+    secondaryClass: isUser ? "text-white/70" : "text-slate-500",
+    accentColor: isUser ? "#ffffff" : "#a855f7",
   };
   const parsedProducts = useMemo(() => {
     if (message.type !== "text") {
@@ -49,14 +50,16 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       )}
       <div className="max-w-2xl">
         <Card
-          bg={isUser ? "purple.600" : "white"}
-          color={isUser ? "white" : "gray.800"}
-          borderRadius="2xl"
-          boxShadow="xl"
+          className={cn(
+            "shadow-xl",
+            isUser
+              ? "border-none bg-gradient-to-br from-purple-600 to-violet-600 text-white"
+              : "bg-white text-slate-900 dark:bg-white dark:text-slate-900",
+          )}
         >
-          <CardBody>
+          <CardContent className="p-5">
             {renderContent(message, streamColors, parsedProducts)}
-          </CardBody>
+          </CardContent>
         </Card>
       </div>
     </div>
@@ -65,24 +68,28 @@ export default function ChatMessage({ message }: ChatMessageProps) {
 
 function renderContent(
   message: ChatMessageType,
-  colors: { color: string; secondary: string; accent: string },
+  colors: {
+    colorClass: string;
+    secondaryClass: string;
+    accentColor: string;
+  },
   parsedProducts?: ParsedProductContent | null,
 ) {
   if (message.type === "text") {
     if (parsedProducts && parsedProducts.items.length > 0) {
       return (
-        <Stack spacing={4}>
+        <div className="space-y-4">
           {parsedProducts.intro && (
-            <Text fontSize="sm" color={colors.color}>
+            <p className={`text-sm ${colors.colorClass}`}>
               {parsedProducts.intro}
-            </Text>
+            </p>
           )}
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+          <div className="grid gap-4 md:grid-cols-2">
             {parsedProducts.items.map((item) => (
               <ProductCard key={item.id} product={item} ctaLabel="Shop now" />
             ))}
-          </SimpleGrid>
-        </Stack>
+          </div>
+        </div>
       );
     }
 
@@ -90,9 +97,9 @@ function renderContent(
       <ChatStream
         content={message.content}
         isStreaming={message.isStreaming}
-        color={colors.color}
-        secondaryColor={colors.secondary}
-        accentColor={colors.accent}
+        colorClass={colors.colorClass}
+        secondaryClass={colors.secondaryClass}
+        accentColor={colors.accentColor}
       />
     );
   }
@@ -104,18 +111,18 @@ function renderContent(
   ) {
     const payload = message.data as ProductListPayload;
     return (
-      <Stack spacing={4}>
+      <div className="space-y-4">
         {message.content && (
-          <Text fontSize="sm" color="gray.600">
+          <p className="text-sm text-slate-500">
             {message.content}
-          </Text>
+          </p>
         )}
-        <Stack spacing={4}>
+        <div className="space-y-4">
           {payload.items.map((item) => (
             <ProductCard key={item.id} product={item} ctaLabel={payload.ctaLabel} />
           ))}
-        </Stack>
-      </Stack>
+        </div>
+      </div>
     );
   }
 
@@ -126,14 +133,14 @@ function renderContent(
   ) {
     const payload = message.data as ProductComparisonPayload;
     return (
-      <Stack spacing={4}>
+      <div className="space-y-4">
         {message.content && (
-          <Text fontSize="sm" color="gray.600">
+          <p className="text-sm text-slate-500">
             {message.content}
-          </Text>
+          </p>
         )}
         <ProductComparison payload={payload} />
-      </Stack>
+      </div>
     );
   }
 
@@ -144,14 +151,14 @@ function renderContent(
   ) {
     const payload = message.data as CartSummaryPayload;
     return (
-      <Stack spacing={4}>
+      <div className="space-y-4">
         {message.content && (
-          <Text fontSize="sm" color="gray.600">
+          <p className="text-sm text-slate-500">
             {message.content}
-          </Text>
+          </p>
         )}
         <CartSummary payload={payload} />
-      </Stack>
+      </div>
     );
   }
 
@@ -159,9 +166,9 @@ function renderContent(
     <ChatStream
       content={message.content}
       isStreaming={message.isStreaming}
-      color={colors.color}
-      secondaryColor={colors.secondary}
-      accentColor={colors.accent}
+      colorClass={colors.colorClass}
+      secondaryClass={colors.secondaryClass}
+      accentColor={colors.accentColor}
     />
   );
 }
@@ -172,48 +179,70 @@ type ParsedProductContent = {
 };
 
 function extractProductsFromText(content: string): ParsedProductContent {
-  const regex = /(\d+)\.\s+\*\*(.+?)\*\*([\s\S]*?)(?=\n\d+\.\s+\*\*|$)/g;
   const items: ProductListPayload["items"] = [];
-  let intro = "";
+  const matches: Array<{ start: number; name: string; body: string }> = [];
+
+  const numberedRegex = /(\d+)\.\s+\*\*(.+?)\*\*([\s\S]*?)(?=\n\d+\.\s+\*\*|$)/g;
   let match: RegExpExecArray | null;
-
-  while ((match = regex.exec(content)) !== null) {
-    const block = match[0];
-    if (items.length === 0) {
-      intro = content.slice(0, match.index).trim();
-    }
-    const name = match[2].trim();
-    const price = extractCurrency(block);
-    const description = extractField(block, "Description") || "";
-    const rating = extractRating(block);
-    const image = extractImage(block);
-    const badge = extractBadge(block);
-
-    items.push({
-      id: `${match.index}-${name}`,
-      name,
-      description,
-      price,
-      image,
-      rating: rating ?? undefined,
-      badge: badge ?? undefined,
+  while ((match = numberedRegex.exec(content)) !== null) {
+    matches.push({
+      start: match.index,
+      name: match[2].trim(),
+      body: match[3],
     });
   }
 
+  const headingRegex = /###\s+(.+?)\s*\n([\s\S]*?)(?=\n###\s+|\n\d+\.\s+\*\*|$)/g;
+  while ((match = headingRegex.exec(content)) !== null) {
+    matches.push({
+      start: match.index,
+      name: match[1].replace(/\*\*/g, "").trim(),
+      body: match[2],
+    });
+  }
+
+  matches
+    .sort((a, b) => a.start - b.start)
+    .forEach(({ start, name, body }) => {
+      if (items.find((item) => item.name === name)) {
+        return;
+      }
+      const price = extractCurrency(body);
+      const description = extractField(body, "Description") || body.split("\n")[0]?.trim() || "";
+      const rating = extractRating(body);
+      const image = extractImage(body);
+      const badge = extractBadge(body);
+
+      items.push({
+        id: `${start}-${name}`,
+        name,
+        description,
+        price: price ?? 0,
+        image,
+        rating: rating ?? undefined,
+        badge: badge ?? undefined,
+      });
+    });
+
+  const intro = matches.length ? content.slice(0, matches[0].start).trim() : content.trim();
+
   return {
-    intro: intro || content.trim(),
+    intro,
     items,
   };
 }
 
-function extractCurrency(block: string): number {
+function extractCurrency(block: string): number | null {
   const priceMatch =
-    block.match(/\*\*Price:\*\*\s*\$?([\d.,]+)/i) ||
-    block.match(/Price[:\s]*\$?([\d.,]+)/i);
+    block.match(/\*\*Price:\*\*[^$\d]*\$?\s*([\d.,]+)/i) ||
+    block.match(/Price[^$\d]*\$?\s*([\d.,]+)/i) ||
+    block.match(/\$([\d.,]+)/);
   if (!priceMatch) {
-    return 0;
+    return null;
   }
-  return parseFloat(priceMatch[1].replace(/,/g, "")) || 0;
+  const normalized = priceMatch[1].replace(/[^\d.,-]/g, "").replace(/,/g, "");
+  const parsed = parseFloat(normalized);
+  return Number.isNaN(parsed) ? null : parsed;
 }
 
 function extractField(block: string, field: string): string | null {
@@ -237,9 +266,11 @@ function extractRating(block: string): number | null {
 }
 
 function extractImage(block: string): string {
-  const imageMatch = block.match(/!\[[^\]]*]\((https?:[^)]+)\)/i);
-  if (imageMatch) {
-    return imageMatch[1];
+  const markdownMatch =
+    block.match(/!?\[[^\]]*]\((https?:[^)]+)\)/i) ||
+    block.match(/https?:\/\/[^\s)]+(?:jpg|jpeg|png|webp)/i);
+  if (markdownMatch) {
+    return markdownMatch[1] || markdownMatch[0];
   }
   return "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&auto=format&fit=crop";
 }
