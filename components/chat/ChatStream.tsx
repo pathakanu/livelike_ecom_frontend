@@ -1,5 +1,7 @@
 "use client";
 
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -28,17 +30,9 @@ export default function ChatStream({
 
   return (
     <div className="space-y-3">
-      {content
-        .split("\n")
-        .filter((segment) => segment.trim().length > 0)
-        .map((segment, index) => (
-          <p
-            key={`${segment}-${index}`}
-            className={`text-sm leading-relaxed ${colorClass}`}
-          >
-            {segment.trim()}
-          </p>
-        ))}
+      <div className={`text-sm leading-relaxed ${colorClass}`}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      </div>
       {isStreaming && (
         <div className="flex items-center gap-2 text-xs">
           <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
