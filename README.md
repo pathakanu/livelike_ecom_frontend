@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LiveLike Commerce Assistant Frontend
 
-## Getting Started
+This repository contains the Next.js frontend for the LiveLike AI shopping assistant. It uses the App Router, Tailwind CSS, and shadcn/ui primitives, and expects a backend that streams chat responses over Server-Sent Events (SSE).
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18.18+ or 20.x
+- [pnpm](https://pnpm.io/installation) 8+
+
+## Project Setup (pnpm)
+
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+2. Start the development server (defaults to `http://localhost:3000`):
+   ```bash
+   pnpm dev
+   ```
+3. Build for production:
+   ```bash
+   pnpm build
+   ```
+4. Preview the production build locally:
+   ```bash
+   pnpm start
+   ```
+
+## Environment Variables
+
+The frontend proxies chat requests through `app/api/chat/route.ts`. Configure the backend target with:
+
+| Variable       | Description                                 | Default                |
+| -------------- | ------------------------------------------- | ---------------------- |
+| `BACKEND_URL`  | Base URL of the AI assistant backend API.   | `http://localhost:8000` |
+
+Create an `.env.local` file if you need to override the defaults, e.g.:
+
+```
+BACKEND_URL=https://your-backend.example.com
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Available Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Command        | Description                                           |
+| -------------- | ----------------------------------------------------- |
+| `pnpm dev`     | Runs Next.js in development with hot reloading.       |
+| `pnpm lint`    | Executes ESLint using the shared config.              |
+| `pnpm build`   | Produces an optimized production build.               |
+| `pnpm start`   | Serves the build output (requires `pnpm build` first). |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Development Notes
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- The main UI entry point is `app/page.tsx`, which renders the chat experience housed in `components/chat`.
+- Structured chat responses rely on the backend emitting newline-delimited JSON chunks as described in `lib/api.ts`.
+- Tailwind CSS styles live in `app/globals.css`; adjust theme tokens there if you need to rebrand the assistant.

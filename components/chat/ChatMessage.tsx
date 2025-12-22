@@ -4,11 +4,9 @@ import { useMemo } from "react";
 import {
   CartSummaryPayload,
   ChatMessage as ChatMessageType,
-  ProductComparisonPayload,
   ProductListPayload,
 } from "@/lib/types";
 import ProductCard from "@/components/product/ProductCard";
-import ProductComparison from "@/components/product/ProductComparison";
 import CartSummary from "@/components/product/CartSummary";
 import ChatStream from "./ChatStream";
 import { Card, CardContent } from "@/components/ui/card";
@@ -76,7 +74,8 @@ function renderContent(
   parsedProducts?: ParsedProductContent | null,
 ) {
   if (message.type === "text") {
-    if (parsedProducts && parsedProducts.items.length > 0) {
+    const forceTextOnly = shouldForceTextRendering(message.content);
+    if (!forceTextOnly && parsedProducts && parsedProducts.items.length > 0) {
       const imageItems = parsedProducts.items.filter(
         (item) => typeof item.image === "string" && item.image.trim().length > 0,
       );
@@ -146,21 +145,15 @@ function renderContent(
     );
   }
 
-  if (
-    message.type === "comparison" &&
-    message.data &&
-    "entries" in message.data
-  ) {
-    const payload = message.data as ProductComparisonPayload;
+  if (message.type === "comparison") {
     return (
-      <div className="space-y-4">
-        {message.content && (
-          <p className="text-sm text-slate-500">
-            {message.content}
-          </p>
-        )}
-        <ProductComparison payload={payload} />
-      </div>
+      <ChatStream
+        content={message.content}
+        isStreaming={message.isStreaming}
+        colorClass={colors.colorClass}
+        secondaryClass={colors.secondaryClass}
+        accentColor={colors.accentColor}
+      />
     );
   }
 
@@ -250,6 +243,15 @@ function extractProductsFromText(content: string): ParsedProductContent {
     intro,
     items,
   };
+}
+
+function shouldForceTextRendering(content: string): boolean {
+  const normalized = content.toLowerCase();
+  return (
+    normalized.includes("price comparison") ||
+    normalized.includes("your cart contains") ||
+    (normalized.includes("total for") && normalized.includes("quantity"))
+  );
 }
 
 function extractCurrency(block: string): number | null {
