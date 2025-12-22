@@ -1,4 +1,6 @@
 import { NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8000";
 
@@ -6,25 +8,40 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest): Promise<Response> {
+  const session = await getServerSession(authOptions);
+  const userKey = session?.user?.id;
+  if (!userKey) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   const backendChatURL = new URL("/chat", BACKEND_URL);
 
   const forwardHeaders = new Headers();
-  const contentType = request.headers.get("content-type");
-  if (contentType) {
-    forwardHeaders.set("content-type", contentType);
-  } else {
-    forwardHeaders.set("content-type", "application/json");
-  }
+  forwardHeaders.set("content-type", "application/json");
 
   const authorization = request.headers.get("authorization");
   if (authorization) {
     forwardHeaders.set("authorization", authorization);
   }
 
+  forwardHeaders.set("x-user-key", userKey);
+
+  let payload: unknown;
+  try {
+    payload = await request.json();
+  } catch {
+    payload = null;
+  }
+
+  const body = JSON.stringify({
+    ...(typeof payload === "object" && payload !== null ? payload : {}),
+    userKey,
+  });
+
   const backendResponse = await fetch(backendChatURL, {
     method: "POST",
     headers: forwardHeaders,
-    body: request.body,
+    body,
     duplex: "half",
     signal: request.signal,
   });

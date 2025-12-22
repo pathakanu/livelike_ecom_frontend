@@ -7,14 +7,22 @@ export async function streamChat(
   input: StreamChatInput,
   onChunk: (chunk: ChatResponseChunk) => void,
 ): Promise<void> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Accept": "text/event-stream",
+  };
+
+  if (input.userKey) {
+    headers["x-user-key"] = input.userKey;
+  }
+
   const response = await fetch(CHAT_PROXY_PATH, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
       message: input.message,
       history: input.history,
+      userKey: input.userKey,
     }),
     signal: input.signal,
   });

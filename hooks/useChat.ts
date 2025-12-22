@@ -16,7 +16,7 @@ const createId = () =>
     ? crypto.randomUUID()
     : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`;
 
-export function useChat() {
+export function useChat(userKey?: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -176,6 +176,7 @@ export function useChat() {
             message,
             history: buildHistory(historySnapshot),
             signal: controller.signal,
+            userKey,
           },
           (chunk) => handleChunk(assistantId, chunk),
         );
@@ -202,6 +203,7 @@ export function useChat() {
       handleChunk,
       messages,
       updateAssistantMessage,
+      userKey,
     ],
   );
 

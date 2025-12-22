@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import { useChat } from "@/hooks/useChat";
@@ -8,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function ChatContainer() {
+  const { data: session } = useSession();
+  const userKey = session?.user?.id;
+  const displayName = session?.user?.name || session?.user?.username || "Shopper";
   const { messages, sendMessage, isLoading, error, clearError, resetConversation } =
-    useChat();
+    useChat(userKey);
   const [draft, setDraft] = useState("");
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -49,9 +53,24 @@ export default function ChatContainer() {
               Discover products, compare specs, and build carts with a single prompt.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={resetConversation}>
-            Reset chat
-          </Button>
+          <div className="flex flex-col items-start gap-2 text-right sm:items-end">
+            <p className="text-xs uppercase tracking-wide text-purple-200">
+              Signed in as{" "}
+              <span className="font-semibold text-white">{displayName}</span>
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={resetConversation}>
+                Reset chat
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+              >
+                Sign out
+              </Button>
+            </div>
+          </div>
         </header>
 
         {error && (
