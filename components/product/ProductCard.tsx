@@ -42,11 +42,11 @@ export default function ProductCard({
           </p>
         )}
       </CardContent>
-      <CardFooter className="px-5 pb-5">
+      {/* <CardFooter className="px-5 pb-5">
         <Button className="w-full rounded-xl py-3 text-sm font-semibold">
           Add to Cart
         </Button>
-      </CardFooter>
+      </CardFooter> */}
     </Card>
   );
 }

@@ -77,6 +77,20 @@ function renderContent(
 ) {
   if (message.type === "text") {
     if (parsedProducts && parsedProducts.items.length > 0) {
+      const imageItems = parsedProducts.items.filter(
+        (item) => typeof item.image === "string" && item.image.trim().length > 0,
+      );
+      if (imageItems.length === 0) {
+        return (
+          <ChatStream
+            content={message.content}
+            isStreaming={message.isStreaming}
+            colorClass={colors.colorClass}
+            secondaryClass={colors.secondaryClass}
+            accentColor={colors.accentColor}
+          />
+        );
+      }
       return (
         <div className="space-y-4">
           {parsedProducts.intro && (
@@ -85,8 +99,8 @@ function renderContent(
             </p>
           )}
           <div className="grid gap-4 md:grid-cols-2">
-            {parsedProducts.items.map((item) => (
-              <ProductCard key={item.id} product={item} ctaLabel="Shop now" />
+            {imageItems.map((item) => (
+              <ProductCard key={item.id} product={item} ctaLabel="Add to Cart" />
             ))}
           </div>
         </div>
@@ -110,6 +124,12 @@ function renderContent(
     "items" in message.data
   ) {
     const payload = message.data as ProductListPayload;
+    const itemsWithImage = payload.items.filter(
+      (item) => typeof item.image === "string" && item.image.trim().length > 0,
+    );
+    if (itemsWithImage.length === 0) {
+      return null;
+    }
     return (
       <div className="space-y-4">
         {message.content && (
@@ -118,7 +138,7 @@ function renderContent(
           </p>
         )}
         <div className="space-y-4">
-          {payload.items.map((item) => (
+          {itemsWithImage.map((item) => (
             <ProductCard key={item.id} product={item} ctaLabel={payload.ctaLabel} />
           ))}
         </div>
@@ -272,7 +292,7 @@ function extractImage(block: string): string {
   if (markdownMatch) {
     return markdownMatch[1] || markdownMatch[0];
   }
-  return "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&auto=format&fit=crop";
+  return "";
 }
 
 function extractBadge(block: string): string | null {
