@@ -2,6 +2,7 @@ import { ChatResponseChunk, StreamChatInput } from "./types";
 
 const DECODER = new TextDecoder();
 const CHAT_PROXY_PATH = "/api/chat";
+const STATIC_SESSION_ID = "livelike-demo-session";
 
 export async function streamChat(
   input: StreamChatInput,
@@ -13,6 +14,7 @@ export async function streamChat(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+      session_id: input.sessionId ?? STATIC_SESSION_ID,
       message: input.message,
       history: input.history,
     }),

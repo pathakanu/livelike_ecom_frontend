@@ -74,4 +74,5 @@ export interface StreamChatInput {
   message: string;
   history: ChatHistoryItem[];
   signal: AbortSignal;
+  sessionId?: string;
 }
